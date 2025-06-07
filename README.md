@@ -20,7 +20,34 @@ Quando o nível da água ultrapassa a marca de 3 metros, o Smart Manhole entra e
 Além do controle automático da comporta, a solução conta com um sistema de sinalização por LED, que indica visualmente o status do nível de água no bueiro, facilitando a supervisão local ou remota por equipes de manutenção e defesa civil.
 
 ## 💻 Detalhes Técnicos
-A utilização de um motor Servo -- explicação
+
+O cérebro do projeto é um código C++ rodando em um Arduino UNO. A lógica foi pensada para garantir confiabilidade e evitar acionamentos desnecessários da comporta.
+
+### Leitura Estabilizada do Sensor
+
+Para obter uma medição precisa do nível da água e evitar oscilações causadas por movimentos na água ou falhas pontuais do sensor, o sistema não confia em uma única leitura. A função `lerDistanciaMedia()` realiza 10 medições em rápida sucessão.
+
+1. **Acionamento do Sensor:** Um pulso de 10 microssegundos é enviado ao pino `TRIG` do sensor HC-SR04.
+
+2. **Escuta do Eco:** O sistema mede o tempo que o pino `ECHO` leva para retornar um sinal, usando a função `pulseIn()`. Um `timeout` é definido para descartar leituras inválidas caso o eco não retorne.
+
+3. **Cálculo e Média:** A duração do pulso é convertida para centímetros. As leituras válidas são somadas e, ao final, a média é calculada. Isso resulta em um valor de distância muito mais estável.
+
+4. **Cálculo do Nível:** O nível da água é determinado pela fórmula: `nível = altura total do bueiro - distância média medida`.
+
+### Controle da Comporta com Histerese
+
+Para impedir que a comporta abra e feche repetidamente quando o nível da água está próximo do limite, foi implementado um sistema de **histerese**. Isso cria duas faixas de acionamento distintas:
+
+* **Limite para Abrir (`LIMITE_ABRIR` = 300 cm):** A comporta **só abre** se estiver fechada e o nível da água atingir ou ultrapassar os 3 metros.
+
+* **Limite para Fechar (`LIMITE_FECHAR` = 290 cm):** Uma vez aberta, a comporta **só fecha** se o nível da água baixar para 2.9 metros ou menos.
+
+Essa diferença de 10 cm entre os limites de abertura e fechamento garante que o servo motor não seja sobrecarregado, aumentando a vida útil do componente e a estabilidade do sistema.
+
+### Gerenciamento de Estado
+
+O sistema utiliza variáveis de controle para saber o estado atual da comporta (`comportaAberta`) e para garantir que a posição inicial seja definida corretamente na primeira vez que o sistema é ligado (`estadoInicializado`). A lógica principal é executada a cada segundo, conforme definido em `INTERVALO_LEITURA`, usando a função `millis()` para não travar o processador com `delay()`. Os LEDs verde e vermelho fornecem um feedback visual imediato, indicando se o nível da água está em uma faixa segura (verde) ou de risco (vermelho).
 
 ## ▶️ Requisitos Funcionais
 1. O sistema deve fazer leituras da distancia da profunidade do bueiro utilizando o sensor ultrassonico
