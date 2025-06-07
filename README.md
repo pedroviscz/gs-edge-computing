@@ -45,7 +45,7 @@ A utilização de um motor Servo -- explicação
 ## 🔗 Como acessar o projeto
 Para acessar o diagrama do projeto [clique aqui](https://wokwi.com/projects/432884789896311809)
 
-Link para o vídeo sobre o projeto: [clique aqui]()
+Link para o vídeo sobre o projeto: [clique aqui](https://www.youtube.com/watch?v=_sHam_btzB8)
 
 ## 🧑‍💻 Tecnologias utilizadas
 - Linguagem de programação: C
